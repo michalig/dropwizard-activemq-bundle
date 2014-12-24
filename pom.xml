@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kjetland.dropwizard</groupId>
     <artifactId>dropwizard-activemq</artifactId>
-    <version>0.3.11-SNAPSHOT</version>
+    <version>0.3.11-JIT</version>
 
     <properties>
         <dropwizard.version>0.7.1</dropwizard.version>
@@ -32,6 +32,11 @@
             <version>${activemq.version}</version>
         </dependency>
         <dependency>
+			<groupId>org.apache.qpid</groupId>
+			<artifactId>qpid-amqp-1-0-client-jms</artifactId>
+			<version>0.30</version>
+		</dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${mockito.version}</version>
@@ -43,14 +48,19 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!-- dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-all</artifactId>
             <version>${activemq.version}</version>
             <scope>test</scope>
-        </dependency>
+            <exclusions>
+            	<exclusion>
+	            	<groupId>org.slf4j</groupId>
+	            	<artifactId>slf4j-log4j12</artifactId>
+            	</exclusion>
+            </exclusions>
+        </dependency-->
     </dependencies>
-
 
     <build>
         <plugins>

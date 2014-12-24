@@ -1,21 +1,25 @@
 package com.kjetland.dropwizard.activemq;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.apache.activemq.ActiveMQConnectionFactory;
+
+import java.util.Optional;
+
+import javax.jms.ConnectionFactory;
+
 import org.apache.activemq.jms.pool.PooledConnectionFactory;
+import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ActiveMQBundle implements ConfiguredBundle<ActiveMQConfigHolder>, Managed, ActiveMQSenderFactory {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private ActiveMQConnectionFactory realConnectionFactory;
+    private ConnectionFactory realConnectionFactory;
     private PooledConnectionFactory connectionFactory = null;
     private ObjectMapper objectMapper;
     private Environment environment;
@@ -38,7 +42,8 @@ public class ActiveMQBundle implements ConfiguredBundle<ActiveMQConfigHolder>, M
 
         log.debug("All activeMQ config: " + configuration.getActiveMQ());
 
-        realConnectionFactory = new ActiveMQConnectionFactory(brokerUrl);
+//        realConnectionFactory = new ActiveMQConnectionFactory(brokerUrl);
+        realConnectionFactory = new ConnectionFactoryImpl("localhost", 5672, "guest", "guest");//"amqp://guest:guest@clientid/test?brokerlist='tcp://localhost:5672'");
         connectionFactory = new PooledConnectionFactory();
         connectionFactory.setConnectionFactory(realConnectionFactory);
 
@@ -117,6 +122,14 @@ public class ActiveMQBundle implements ConfiguredBundle<ActiveMQConfigHolder>, M
 
     public ActiveMQSender createSender(String destination, boolean persistent, Optional<Integer> timeToLiveInSeconds) {
         return new ActiveMQSenderImpl(connectionFactory, objectMapper, destination, timeToLiveInSeconds, persistent);
+    }
+    
+    public ActiveMQTransactionalSender createTransactionalSender(String destination, boolean persistent) {
+    	return createTransactionalSender(destination, persistent, defaultTimeToLiveInSeconds);
+    }
+    
+    public ActiveMQTransactionalSender createTransactionalSender(String destination, boolean persistent, Optional<Integer> timeToLiveInSeconds) {
+    	return new ActiveMQTransactionalSenderImpl(connectionFactory, objectMapper, destination, timeToLiveInSeconds, persistent);
     }
 
     // This must be used during run-phase
