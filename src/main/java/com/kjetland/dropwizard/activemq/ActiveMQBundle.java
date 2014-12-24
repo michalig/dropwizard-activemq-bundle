@@ -7,10 +7,8 @@ import io.dropwizard.setup.Environment;
 
 import java.util.Optional;
 
-import javax.jms.ConnectionFactory;
-
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.pool.PooledConnectionFactory;
-import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ActiveMQBundle implements ConfiguredBundle<ActiveMQConfigHolder>, Managed, ActiveMQSenderFactory {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private ConnectionFactory realConnectionFactory;
+    private ActiveMQConnectionFactory realConnectionFactory;
     private PooledConnectionFactory connectionFactory = null;
     private ObjectMapper objectMapper;
     private Environment environment;
@@ -42,8 +40,7 @@ public class ActiveMQBundle implements ConfiguredBundle<ActiveMQConfigHolder>, M
 
         log.debug("All activeMQ config: " + configuration.getActiveMQ());
 
-//        realConnectionFactory = new ActiveMQConnectionFactory(brokerUrl);
-        realConnectionFactory = new ConnectionFactoryImpl("localhost", 5672, "guest", "guest");//"amqp://guest:guest@clientid/test?brokerlist='tcp://localhost:5672'");
+        realConnectionFactory = new ActiveMQConnectionFactory(brokerUrl);
         connectionFactory = new PooledConnectionFactory();
         connectionFactory.setConnectionFactory(realConnectionFactory);
 
